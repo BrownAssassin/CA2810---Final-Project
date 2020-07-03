@@ -1,0 +1,10 @@
+x.x.x
+
+Digit 1 (0.x.x)
+- Representing completed program
+
+Digit 2 (x.0.x)
+- Representing completed utility
+
+Digit 3 (x.x.0)
+- Representing bug fixes/small changes
