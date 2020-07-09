@@ -26,7 +26,7 @@
 		.end_macro
 		.macro print_str (%str) # Prints a string
 		li $v0, 4
-		add $a0, $zero, %str
+		la $a0, %str
 		syscall
 		.end_macro
 		.macro print_char (%char) # Prints a character
@@ -58,11 +58,8 @@
 		.end_macro
 		
 		loop:
-			li $v0, 4
-			la $a0, utilityPrompt
-			syscall
-			li $v0, 12
-			syscall
+			print_str (utilityPrompt)
+			input_char
 			beq $v0, 'a', U1
 			beq $v0, 'b', U2
 			beq $v0, 'c', U3
