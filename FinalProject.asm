@@ -2,6 +2,12 @@
 # FinalProject.asm -- [File desc.]
 .data
 	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
+	weightPrompt: .asciiz "\n\nEnter weight (kg): "
+	heightPrompt: .asciiz "Enter height (cm): "
+	float1: .float 100.00
+	float2: .float 10.00
+	BMIOutput: .asciiz "Your BMI is "
+	exitPrompt: .asciiz "\nWould you like to exit the program?"
 .text
 	main:
 		# Macros
@@ -16,7 +22,7 @@
 		.end_macro
 		.macro print_float (%flt) # Prints a float
 		li $v0, 2
-		add $f12, $zero, %flt
+		mov.s $f12, %flt
 		syscall
 		.end_macro
 		.macro print_double (%dbl) # Prints a double
@@ -68,8 +74,29 @@
 			U1:
 				##########################################################################
 				# Registers used:
+				#	f4	- used to hold weight
+				#		-- used to hold BMI
+				#	f6	- used to hold height
+				#	f8	- used to hold float1
+				#	f10	- used to hold float2
 				##########################################################################
-				# [BMI Calculator]
+				print_str (weightPrompt)
+				input_float
+				mov.s $f4, $f0
+				print_str (heightPrompt)
+				input_float
+				mov.s $f6, $f0
+				l.s $f8, float1
+				l.s $f10, float2
+				div.s $f6, $f6, $f8
+				mul.s $f6, $f6, $f6
+				div.s $f4, $f4, $f6
+				mul.s $f4, $f4, $f10
+				round.w.s $f0, $f4
+				cvt.s.w $f4, $f0
+				div.s $f4, $f4, $f10
+				print_str (BMIOutput)
+				print_float ($f4)
 				j end
 			U2:
 				##########################################################################
