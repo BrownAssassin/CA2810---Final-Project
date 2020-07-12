@@ -3,11 +3,19 @@
 .data
 	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
 	weightPrompt: .asciiz "\n\nEnter weight (kg): "
+	weight2Prompt: .asciiz "\nEnter weight (lb): "
 	heightPrompt: .asciiz "Enter height (cm): "
 	float1: .float 100.00
 	float2: .float 10.00
+	float3: .float 32.0
+	float4: .float 1.8
+	float5: .float 2.2046
 	BMIOutput: .asciiz "Your BMI is "
 	exitPrompt: .asciiz "\nWould you like to exit the program?"
+	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
+	tempOutput: .asciiz "\nTemperature in Celsius: "
+	kgOutput: .asciiz "\nYour weight (kg): "
+	
 .text
 	main:
 		# Macros
@@ -101,14 +109,35 @@
 			U2:
 				##########################################################################
 				# Registers used:
+				#	f4	- used to hold temperature
+				#	f8	- used to hold float3 - 32
+				#	f10	- used to hold float4 - 1.8
 				##########################################################################
 				# [Farenheit to Celsius Converter]
+				print_str (tempPrompt)
+				input_float
+				mov.s $f4, $f0
+				l.s $f8, float3
+				l.s $f10, float4
+				sub.s $f4, $f4, $f8
+				div.s $f4, $f4, $f10
+				print_str (tempOutput)
+				print_float ($f4)
 				j end
 			U3:
 				##########################################################################
 				# Registers used:
+				#	f4	- used to hold weight
+				#	f6	- used to hold float5 - 2.2046
 				##########################################################################
 				# [Pounds to Kilograms Converter]
+				print_str (weight2Prompt)
+				input_float
+				mov.s $f4, $f0
+				l.s $f6, float5
+				div.s $f4, $f4, $f6
+				print_str (kgOutput)
+				print_float ($f4)
 				j end
 			U4:
 				##########################################################################
