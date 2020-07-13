@@ -15,6 +15,8 @@
 	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
 	tempOutput: .asciiz "\nTemperature in Celsius: "
 	kgOutput: .asciiz "\nYour weight (kg): "
+	fibPrompt: .asciiz "\nEnter a number (n) greater than 1: "
+	fibOutput: .asciiz "\nThe corresponding fibonacci number is: "
 	
 .text
 	main:
@@ -106,6 +108,7 @@
 				print_str (BMIOutput)
 				print_float ($f4)
 				j end
+		
 			U2:
 				##########################################################################
 				# Registers used:
@@ -142,9 +145,33 @@
 			U4:
 				##########################################################################
 				# Registers used:
+				#	t0	- used to hold subscript n
+				#	t1	- used to hold user input n 
+				#	t2	- used to hold Fn - 1
+				#	t3	- used to hold Fn - 2
+				#	t4	- used to hold fibonacci number (Fn)
 				##########################################################################
 				# [Fibonacci Calculator]
+				print_str (fibPrompt)
+				input_int
+				move $t1, $v0
+				li $t0, 2
+				li $t2, 1
+				li $t3, 0
+				
+				fibLoop:
+					bgt $t0, $t1, endFib
+					add $t4, $t2, $t3 # t4 = Fn-1 + Fn-2
+					move $t3, $t2 # t3 = Fn-2
+					move $t2, $t4 # t2 = Fn
+					addi $t0, $t0, 1			
+				j fibLoop
+				
+				endFib:
+					print_str (fibOutput)
+					print_int ($t4)
 				j end
+					
 			else:
 				j loop
 		end:
