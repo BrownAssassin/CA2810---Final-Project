@@ -1,5 +1,12 @@
 # Mrinank Sivakumar (100748771), Farhan Irani (100748418), Ayi Pranayanda (100765502) -- 07/06/20
-# FinalProject.asm -- [File desc.]
+# FinalProject.asm -- A MIPS assembly code project that contains multiple utilities (BMI Calculator,
+#			Farenheit to Celsius Converter, Pounds to Kilograms Converter,
+#			and Fibonacci Sequence Calculator) and will allow the user to choose which
+#			utility they want to use.
+#			+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#			NOTE: This program uses Syscall services beyond 30 (which are not offered by
+#			SPIM) and as such is only compatible with MARS
+#			+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 .data
 	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
 	weightPrompt: .asciiz "\n\nEnter weight (kg): "
@@ -62,14 +69,35 @@
 		li $v0, 7
 		syscall
 		.end_macro
-		.macro input_str (%var, %x) # Gets atring input    ############################################
-		li $v0, 8					    #
-		la $a0, %var					    # Not sure about this one
-		li $a1, %x					    # Will need to be tested
-		syscall						    #
-		.end_macro					    ############################################
+		.macro input_str (%var, %x) # Gets string input ; stored in var
+		li $v0, 8
+		la $a0, %var
+		li $a1, %x
+		syscall
+		.end_macro
 		.macro input_char # Gets character input ; stored in $v0
 		li $v0, 12
+		syscall
+		.end_macro
+		.macro cnfmDialog (%var) # Dialog Box used to get confirmation from user
+		li $v0, 50
+		la $a0, %var
+		syscall
+		.end_macro
+		.macro inDialogInt (%var) # Dialog Box used to get int value from user
+		li $v0, 51
+		la $a0, %var
+		syscall
+		.end_macro
+		.macro inDialogFloat (%var) # Dialog Box used to get float value from user
+		li $v0, 52
+		la $a0, %var
+		syscall
+		.end_macro
+		.macro MsgDialog (%var, %int) # Dialog Box used to display a message
+		li $v0, 55
+		la $a0, %var
+		li $a1, %int
 		syscall
 		.end_macro
 		
@@ -81,6 +109,7 @@
 			beq $v0, 'c', U3
 			beq $v0, 'd', U4
 			j else
+			
 			U1:
 				##########################################################################
 				# Registers used:
@@ -147,6 +176,10 @@
 				l.s $f6, float5
 				l.s $f8, float2
 				div.s $f4, $f4, $f6
+				mul.s $f4, $f4, $f8
+				round.w.s $f0, $f4
+				cvt.s.w $f4, $f0
+				div.s $f4, $f4, $f8
 				print_str (kgOutput)
 				print_float ($f4)
 				j end
