@@ -1,4 +1,4 @@
-# Mrinank Sivakumar (100748771), Farhan Irani (100748418), Ayi Pranayanda (100765502) -- mm/dd/yy
+# Mrinank Sivakumar (100748771), Farhan Irani (100748418), Ayi Pranayanda (100765502) -- 07/06/20
 # FinalProject.asm -- [File desc.]
 .data
 	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
@@ -113,6 +113,7 @@
 				##########################################################################
 				# Registers used:
 				#	f4	- used to hold temperature
+				#	f6	- used to hold float2 - 10
 				#	f8	- used to hold float3 - 32
 				#	f10	- used to hold float4 - 1.8
 				##########################################################################
@@ -120,10 +121,15 @@
 				print_str (tempPrompt)
 				input_float
 				mov.s $f4, $f0
+				l.s $f6, float2
 				l.s $f8, float3
 				l.s $f10, float4
 				sub.s $f4, $f4, $f8
 				div.s $f4, $f4, $f10
+				mul.s $f4, $f4, $f6
+				round.w.s $f0, $f4
+				cvt.s.w $f4, $f0
+				div.s $f4, $f4, $f6
 				print_str (tempOutput)
 				print_float ($f4)
 				j end
@@ -132,12 +138,14 @@
 				# Registers used:
 				#	f4	- used to hold weight
 				#	f6	- used to hold float5 - 2.2046
+				#	f8	- used to hold float2
 				##########################################################################
 				# [Pounds to Kilograms Converter]
 				print_str (weight2Prompt)
 				input_float
 				mov.s $f4, $f0
 				l.s $f6, float5
+				l.s $f8, float2
 				div.s $f4, $f4, $f6
 				print_str (kgOutput)
 				print_float ($f4)
