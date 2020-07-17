@@ -3,10 +3,7 @@
 #			Farenheit to Celsius Converter, Pounds to Kilograms Converter,
 #			and Fibonacci Sequence Calculator) and will allow the user to choose which
 #			utility they want to use.
-#			+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#			NOTE: This program uses Syscall services beyond 30 (which are not offered by
-#			SPIM) and as such is only compatible with MARS
-#			+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# Registers used - {Independant lists for each util.}
 .data
 	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
 	weightPrompt: .asciiz "\n\nEnter weight (kg): "
@@ -77,27 +74,6 @@
 		.end_macro
 		.macro input_char # Gets character input ; stored in $v0
 		li $v0, 12
-		syscall
-		.end_macro
-		.macro cnfmDialog (%var) # Dialog Box used to get confirmation from user
-		li $v0, 50
-		la $a0, %var
-		syscall
-		.end_macro
-		.macro inDialogInt (%var) # Dialog Box used to get int value from user
-		li $v0, 51
-		la $a0, %var
-		syscall
-		.end_macro
-		.macro inDialogFloat (%var) # Dialog Box used to get float value from user
-		li $v0, 52
-		la $a0, %var
-		syscall
-		.end_macro
-		.macro MsgDialog (%var, %int) # Dialog Box used to display a message
-		li $v0, 55
-		la $a0, %var
-		li $a1, %int
 		syscall
 		.end_macro
 		
