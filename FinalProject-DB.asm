@@ -9,9 +9,10 @@
 #			+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Registers used - {Independant lists for each util.}
 .data
-	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator\n-> "
-	weightPrompt: .asciiz "\n\nEnter weight (kg): "
-	weight2Prompt: .asciiz "\nEnter weight (lb): "
+	utilityPrompt: .asciiz "'a' [BMI calculator]\n'b' [Farenheit to Celsius converter]\n'c' [Pounds to Kilograms converter]\n'd' [Fibonacci calculator]"
+	utilityInput: .space 4
+	weightPrompt: .asciiz "Enter weight (kg): "
+	weight2Prompt: .asciiz "Enter weight (lb): "
 	heightPrompt: .asciiz "Enter height (cm): "
 	float1: .float 100.00
 	float2: .float 10.00
@@ -19,7 +20,8 @@
 	float4: .float 1.8
 	float5: .float 2.2046
 	BMIOutput: .asciiz "Your BMI is "
-	exitPrompt: .asciiz "\nWould you like to exit the program?"
+	exitPrompt: .asciiz "Would you like to exit the program?"
+	exitLock: .asciiz "Yes or No must be selected."
 	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
 	tempOutput: .asciiz "\nTemperature in Celsius: "
 	kgOutput: .asciiz "\nYour weight (kg): "
@@ -102,20 +104,27 @@
 		li $a2, %size
 		syscall
 		.end_macro
-		.macro MsgDialog (%msg, %typ) # Dialog Box used to display a message
+		.macro msgDialog (%msg, %typ) # Dialog Box used to display a message
 		li $v0, 55
 		la $a0, %msg
 		li $a1, %typ
 		syscall
 		.end_macro
+		.macro msgDialogFloat (%msg, %flt) # Dialog Box used to display a message and a float
+		li $v0, 57
+		la $a0, %msg
+		mov.s $f12, %flt
+		syscall
+		.end_macro
 		
 		loop:
-			print_str (utilityPrompt)
-			input_char
-			beq $v0, 'a', U1
-			beq $v0, 'b', U2
-			beq $v0, 'c', U3
-			beq $v0, 'd', U4
+			inDialogStr (utilityPrompt, utilityInput, 4)
+			la $s0, utilityInput
+			lb $s1, 0($s0)
+			beq $s1, 'a', U1
+			beq $s1, 'b', U2
+			beq $s1, 'c', U3
+			beq $s1, 'd', U4
 			j else
 			
 			U1:
@@ -127,11 +136,9 @@
 				#	f8	- used to hold float1
 				#	f10	- used to hold float2
 				##########################################################################
-				print_str (weightPrompt)
-				input_float
+				inDialogFloat (weightPrompt)
 				mov.s $f4, $f0
-				print_str (heightPrompt)
-				input_float
+				inDialogFloat (heightPrompt)
 				mov.s $f6, $f0
 				l.s $f8, float1
 				l.s $f10, float2
@@ -142,8 +149,7 @@
 				round.w.s $f0, $f4
 				cvt.s.w $f4, $f0
 				div.s $f4, $f4, $f10
-				print_str (BMIOutput)
-				print_float ($f4)
+				msgDialogFloat (BMIOutput, $f4)
 				j end
 		
 			U2:
@@ -224,4 +230,17 @@
 			else:
 				j loop
 		end:
-	exit
+			exitLoop:
+				cnfmDialog (exitPrompt)
+				beq $a0, 0, yes
+				beq $a0, 1, no
+				beq $a0, 2, cancel
+				j exitLoop
+				
+				yes:
+					exit
+				no:
+					j loop
+				cancel:
+					msgDialog (exitLock, 0)
+					j exitLoop	

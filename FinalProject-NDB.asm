@@ -15,7 +15,7 @@
 	float4: .float 1.8
 	float5: .float 2.2046
 	BMIOutput: .asciiz "Your BMI is "
-	exitPrompt: .asciiz "\nWould you like to exit the program?"
+	exitPrompt: .asciiz "\n\nWould you like to exit the program? (y/n)\n-> "
 	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
 	tempOutput: .asciiz "\nTemperature in Celsius: "
 	kgOutput: .asciiz "\nYour weight (kg): "
@@ -192,4 +192,14 @@
 			else:
 				j loop
 		end:
-	exit
+			exitLoop:
+				print_str (exitPrompt)
+				input_char
+				beq $v0, 'y', yes
+				beq $v0, 'n', no
+				j exitLoop
+				
+				yes:
+					exit
+				no:
+					j loop
