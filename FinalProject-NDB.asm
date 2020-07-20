@@ -16,6 +16,7 @@
 	float5: .float 2.2046
 	BMIOutput: .asciiz "Your BMI is "
 	exitPrompt: .asciiz "\n\nWould you like to exit the program? (y/n)\n-> "
+	exitLock: .asciiz "\nY or N must be entered."
 	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
 	tempOutput: .asciiz "\nTemperature in Celsius: "
 	kgOutput: .asciiz "\nYour weight (kg): "
@@ -39,19 +40,9 @@
 		mov.s $f12, %flt
 		syscall
 		.end_macro
-		.macro print_double (%dbl) # Prints a double
-		li $v0, 3
-		add $f12, $zero, %dbl
-		syscall
-		.end_macro
 		.macro print_str (%str) # Prints a string
 		li $v0, 4
 		la $a0, %str
-		syscall
-		.end_macro
-		.macro print_char (%char) # Prints a character
-		li $v0, 11
-		add $a0, $zero, %char
 		syscall
 		.end_macro
 		.macro input_int # Gets integer input ; stored in $v0
@@ -60,16 +51,6 @@
 		.end_macro
 		.macro input_float # Gets float input ; stored in $f0
 		li $v0, 6
-		syscall
-		.end_macro
-		.macro input_double # Gets double input ; stored in $f0
-		li $v0, 7
-		syscall
-		.end_macro
-		.macro input_str (%var, %x) # Gets string input ; stored in var
-		li $v0, 8
-		la $a0, %var
-		li $a1, %x
 		syscall
 		.end_macro
 		.macro input_char # Gets character input ; stored in $v0
@@ -138,6 +119,7 @@
 				print_str (tempOutput)
 				print_float ($f4)
 				j end
+				
 			U3:
 				##########################################################################
 				# Registers used:
@@ -159,6 +141,7 @@
 				print_str (kgOutput)
 				print_float ($f4)
 				j end
+				
 			U4:
 				##########################################################################
 				# Registers used:
@@ -182,24 +165,31 @@
 					move $t3, $t2 # t3 = Fn-2
 					move $t2, $t4 # t2 = Fn
 					addi $t0, $t0, 1			
-				j fibLoop
+					j fibLoop
 				
 				endFib:
 					print_str (fibOutput)
 					print_int ($t4)
-				j end
+					j end
 					
 			else:
 				j loop
+				
 		end:
 			exitLoop:
 				print_str (exitPrompt)
 				input_char
 				beq $v0, 'y', yes
 				beq $v0, 'n', no
-				j exitLoop
+				j other
 				
 				yes:
 					exit
+					
 				no:
 					j loop
+					
+				other:
+					print_str (exitLock)
+					j exitLoop
+					

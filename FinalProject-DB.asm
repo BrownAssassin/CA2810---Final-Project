@@ -22,64 +22,17 @@
 	BMIOutput: .asciiz "Your BMI is "
 	exitPrompt: .asciiz "Would you like to exit the program?"
 	exitLock: .asciiz "Yes or No must be selected."
-	tempPrompt: .asciiz "\nEnter temperature in Fahrenheit: "
-	tempOutput: .asciiz "\nTemperature in Celsius: "
-	kgOutput: .asciiz "\nYour weight (kg): "
-	fibPrompt: .asciiz "\nEnter a number (n) greater than 1: "
-	fibOutput: .asciiz "\nThe corresponding fibonacci number is: "
+	tempPrompt: .asciiz "Enter temperature in Fahrenheit: "
+	tempOutput: .asciiz "Temperature in Celsius: "
+	kgOutput: .asciiz "Your weight (kg): "
+	fibPrompt: .asciiz "Enter a number (n) greater than 1: "
+	fibOutput: .asciiz "The corresponding fibonacci number is: "
 	
 .text
 	main:
 		# Macros
 		.macro exit # Exits the program
 		li $v0, 10
-		syscall
-		.end_macro
-		.macro print_int (%int) # Prints an integer
-		li $v0, 1
-		add $a0, $zero, %int
-		syscall
-		.end_macro
-		.macro print_float (%flt) # Prints a float
-		li $v0, 2
-		mov.s $f12, %flt
-		syscall
-		.end_macro
-		.macro print_double (%dbl) # Prints a double
-		li $v0, 3
-		add $f12, $zero, %dbl
-		syscall
-		.end_macro
-		.macro print_str (%str) # Prints a string
-		li $v0, 4
-		la $a0, %str
-		syscall
-		.end_macro
-		.macro print_char (%char) # Prints a character
-		li $v0, 11
-		add $a0, $zero, %char
-		syscall
-		.end_macro
-		.macro input_int # Gets integer input ; stored in $v0
-		li $v0, 5
-		syscall
-		.end_macro
-		.macro input_float # Gets float input ; stored in $f0
-		li $v0, 6
-		syscall
-		.end_macro
-		.macro input_double # Gets double input ; stored in $f0
-		li $v0, 7
-		syscall
-		.end_macro
-		.macro input_str (%var, %x) # Gets string input ; stored in var
-		li $v0, 8
-		la $a0, %var
-		li $a1, %x
-		syscall
-		.end_macro
-		.macro input_char # Gets character input ; stored in $v0
-		li $v0, 12
 		syscall
 		.end_macro
 		.macro cnfmDialog (%msg) # Dialog Box used to get confirmation from user ; stored in $a0
@@ -110,6 +63,12 @@
 		li $a1, %typ
 		syscall
 		.end_macro
+		.macro msgDialogInt (%msg, %int) # Dialog Box used to display a message and an int
+		li $v0, 56
+		la $a0, %msg
+		add $a1, $zero, %int
+		syscall
+		.end_macro
 		.macro msgDialogFloat (%msg, %flt) # Dialog Box used to display a message and a float
 		li $v0, 57
 		la $a0, %msg
@@ -136,6 +95,7 @@
 				#	f8	- used to hold float1
 				#	f10	- used to hold float2
 				##########################################################################
+				# [BMI Calculator]
 				inDialogFloat (weightPrompt)
 				mov.s $f4, $f0
 				inDialogFloat (heightPrompt)
@@ -151,7 +111,7 @@
 				div.s $f4, $f4, $f10
 				msgDialogFloat (BMIOutput, $f4)
 				j end
-		
+				
 			U2:
 				##########################################################################
 				# Registers used:
@@ -161,8 +121,7 @@
 				#	f10	- used to hold float4 - 1.8
 				##########################################################################
 				# [Farenheit to Celsius Converter]
-				print_str (tempPrompt)
-				input_float
+				inDialogFloat (tempPrompt)
 				mov.s $f4, $f0
 				l.s $f6, float2
 				l.s $f8, float3
@@ -173,9 +132,9 @@
 				round.w.s $f0, $f4
 				cvt.s.w $f4, $f0
 				div.s $f4, $f4, $f6
-				print_str (tempOutput)
-				print_float ($f4)
+				msgDialogFloat (tempOutput, $f4)
 				j end
+				
 			U3:
 				##########################################################################
 				# Registers used:
@@ -184,8 +143,7 @@
 				#	f8	- used to hold float2
 				##########################################################################
 				# [Pounds to Kilograms Converter]
-				print_str (weight2Prompt)
-				input_float
+				inDialogFloat (weight2Prompt)
 				mov.s $f4, $f0
 				l.s $f6, float5
 				l.s $f8, float2
@@ -194,9 +152,9 @@
 				round.w.s $f0, $f4
 				cvt.s.w $f4, $f0
 				div.s $f4, $f4, $f8
-				print_str (kgOutput)
-				print_float ($f4)
+				msgDialogFloat (kgOutput, $f4)
 				j end
+				
 			U4:
 				##########################################################################
 				# Registers used:
@@ -207,9 +165,8 @@
 				#	t4	- used to hold fibonacci number (Fn)
 				##########################################################################
 				# [Fibonacci Calculator]
-				print_str (fibPrompt)
-				input_int
-				move $t1, $v0
+				inDialogInt (fibPrompt)
+				move $t1, $a0
 				li $t0, 2
 				li $t2, 1
 				li $t3, 0
@@ -220,15 +177,15 @@
 					move $t3, $t2 # t3 = Fn-2
 					move $t2, $t4 # t2 = Fn
 					addi $t0, $t0, 1			
-				j fibLoop
-				
+					j fibLoop
+					
 				endFib:
-					print_str (fibOutput)
-					print_int ($t4)
-				j end
+					msgDialogInt (fibOutput, $t4)
+					j end
 					
 			else:
 				j loop
+				
 		end:
 			exitLoop:
 				cnfmDialog (exitPrompt)
@@ -239,8 +196,11 @@
 				
 				yes:
 					exit
+					
 				no:
 					j loop
+					
 				cancel:
 					msgDialog (exitLock, 0)
-					j exitLoop	
+					j exitLoop
+					
